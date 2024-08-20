@@ -12,7 +12,7 @@ int main()
     a[3] *= 2;
     a[10] /= 2;
     a.show_arr();
-    Darray b(5, 45);
+    Darray b(5, 15);
     a += b;
 
     a.show_arr();
