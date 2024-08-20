@@ -4,7 +4,7 @@
 
 int main()
 {
-    Darray a(15, 345);
+    Darray a(15, 34235);
     a.show_arr();
     a[0] = 32;
     a[1] = a[1]+ 4;
