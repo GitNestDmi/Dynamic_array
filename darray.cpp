@@ -9,7 +9,7 @@ Darray::Darray() : lenght(0), capacity(start_lenght_array)
 }
 //-------------------------------------------------------------------------------------
 Darray::Darray(int size, int value): lenght(size), capacity(size* resize_factor)
-{   // надо решить проблему с неявным преобразованием параметров
+{   // надо решить проблему с неявным преобразованием  параметров
     data = new int [static_cast<unsigned int>(capacity)];
     for (int i = 0; i < lenght; i++)
         data[i] = value;
