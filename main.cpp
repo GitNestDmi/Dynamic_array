@@ -2,19 +2,31 @@
 
 
 
-int main() //тест кодировки для русской локи
+int main()
 {
-    Darray a(5, 0);
-    a.show_arr();
-    a[0] = 36;
-    a[1] = a[1]+ 4;
-    a[2] -= 2;
-    a[3] *= 2;
-    a[10] /= 2;
-    a.show_arr();
-    Darray b(5, 15);
-    a += b;
+    try {
+        Darray a(10, 1);
+        Darray b(10, 2);
+        Darray c(10, 3);
 
-    a.show_arr();
+        a += 44;
+
+        cout << "a -> "; a.show_arr();
+        cout << "b -> "; b.show_arr();
+        cout << "c -> "; c.show_arr();
+
+
+    }
+    catch (const Darray::MyException & ex) {
+        cout << ex.what() <<" - " << ex.GetExcepType() << endl;
+
+    }
     return 0;
 }
+
+
+//Надо добавить:
+//Конструктор перемещения
+//Оператор присваивания перемещением
+//Конструктор преобразования через массив int
+//Оператор суммы с семантикой перемещения ??
