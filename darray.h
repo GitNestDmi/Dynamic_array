@@ -1,14 +1,11 @@
 #ifndef DARRAY_H
 #define DARRAY_H
 
-
 #include <iostream>
-#include <fstream>
-#include <cstring>
-#include <string>
-using namespace std;
 
+using namespace std;
 typedef unsigned int uint;
+
 
 
 class Darray{
