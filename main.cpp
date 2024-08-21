@@ -2,7 +2,7 @@
 
 
 
-int main()
+int main() //тест кодировки для русской локи
 {
     Darray a(5, 0);
     a.show_arr();
