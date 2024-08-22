@@ -3,7 +3,6 @@
 
 #include <iostream>
 
-using namespace std;
 typedef unsigned int uint;
 
 
@@ -47,16 +46,19 @@ class Darray{
     
 public:
     //    Darray(const int * dataOther) ;
-    explicit Darray();
-    Darray(int value);
-    explicit Darray(int size_lenght, int value);
-    explicit Darray(const Darray& other);
-    ~Darray() { delete [] data; }
+    Darray();
+    explicit Darray(int value);
+    Darray(int size_lenght, int value);
+    Darray(const Darray& other);
+    Darray(Darray&& other);
+    ~Darray();
 
     Item operator[](int index){ return Item(this, index); }
+
     const Darray& operator=(const Darray& other);
     const Darray& operator+=(const Darray& other);
-    //const Darray& operator+(const Darray& other);
+    Darray& operator=(Darray&& other);
+    Darray operator+(const Darray& other);
 
     const Darray& append(const Darray& other);
     const int* get_data() const { return data; }
@@ -67,7 +69,7 @@ public:
     void push_back(int value = 0);
     void show_arr(const char* sep = " ") const;
 
-    struct MyException : public range_error
+    struct MyException : public std::range_error
     {
         enum exept_type{ out_of_max_size, out_of_min_size, out_of_range};
 

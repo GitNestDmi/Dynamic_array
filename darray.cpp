@@ -1,34 +1,45 @@
 #include "darray.h"
 
+using namespace std;
 
 
 Darray::Darray() : lenght(0)
 {
-    cout << "Darray()" << endl;
     init_array(lenght, start_lenght_array);
 }
 //-------------------------------------------------------------------------------------
-Darray::Darray(const Darray& other): lenght(other.lenght), capacity(other.capacity)
+Darray::Darray(Darray&& other) : data(other.data),
+    lenght(other.lenght), capacity(other.capacity)
 {
-    cout << "Darray(const Darray& other)" << endl;
+    other.data = nullptr;
+    other.lenght = 0;
+    other.capacity = 0;
+}
+//-------------------------------------------------------------------------------------
+Darray::Darray(const Darray& other): lenght(other.lenght),
+    capacity(other.capacity)
+{
     data = new int [static_cast<unsigned int>(capacity)];
     memcpy(reinterpret_cast<char*>(data), reinterpret_cast<char*>(other.data),
            static_cast<unsigned int>(lenght)*sizeof(int));
 }
 //-------------------------------------------------------------------------------------
 Darray::Darray(int value) : lenght(1)
-{                                       // Нужен explecit ?
-    cout << "Darray(int value)" << endl;
+{
     init_array(lenght, start_lenght_array);
     data[0] = value;
 }
 //-------------------------------------------------------------------------------------
 Darray::Darray(int size_lenght, int value): lenght(size_lenght)
 {
-    cout << "Darray(int size_lenght, int value)" << endl;
     init_array(lenght, size_lenght * resize_factor);
     for (int i = 0; i < lenght; i++)
         data[i] = value;
+}
+//-------------------------------------------------------------------------------------
+Darray::~Darray()
+{
+    delete [] data;
 }
 //-------------------------------------------------------------------------------------
 //    Darray::Darray(const int * dataOther) : lenght(1), capacity(start_lenght_array)
@@ -86,7 +97,6 @@ void Darray::resize_array(int size_new)
 //-------------------------------------------------------------------------------------
 const Darray& Darray::operator=(const Darray& other)
 {
-    cout << "operator=" << endl;
     lenght = other.lenght;
     capacity = other.capacity;
     delete [] data;
@@ -96,9 +106,19 @@ const Darray& Darray::operator=(const Darray& other)
     return *this;
 }
 //-------------------------------------------------------------------------------------
+Darray& Darray::operator=(Darray&& other)
+{
+    data = other.data;
+    lenght = other.lenght;
+    capacity = other.capacity;
+    other.data = nullptr;
+    other.lenght = 0;
+    other.capacity = 0;
+    return *this;
+}
+//-------------------------------------------------------------------------------------
 const Darray& Darray::operator+=(const Darray& other)
 {
-    cout << "operator+=" << endl;
     lenght += other.lenght;
     if(lenght >= capacity)
         resize_array(lenght);
@@ -111,25 +131,15 @@ const Darray& Darray::operator+=(const Darray& other)
 //-------------------------------------------------------------------------------------
 const Darray& Darray::append(const Darray& other)
 {
-    cout << "append " << endl;
     return *this += other;
 }
 //-------------------------------------------------------------------------------------
-//const Darray& Darray::operator+(const Darray& other) // Нужно возвращать rvalue
-//{
-
-//    Darray tmp_obj(*this);
-//    tmp_obj.append(other);
-
-
-////    memcpy(reinterpret_cast<char*>(tmp_obj.data), reinterpret_cast<char*>(data),
-////           static_cast<uint>(lenght)*sizeof(int));
-
-////    memcpy(reinterpret_cast<char*>(tmp_obj.data) + (static_cast<uint>(lenght)*sizeof(int)),
-////           reinterpret_cast<char*>(other.data), static_cast<uint>(other.lenght)*sizeof(int));
-
-//    return tmp_obj;
-//}
+Darray Darray::operator+(const Darray& other)
+{
+    Darray tmp_obj(*this);
+    tmp_obj += other;
+    return  tmp_obj; // должно сработать NRVO, значит move не нужен
+}
 //-------------------------------------------------------------------------------------
 int Darray::at(int index) const
 {

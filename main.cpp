@@ -1,20 +1,16 @@
 #include <darray.h>
 
+using namespace std;
 
 
 int main()
 {
     try {
-        Darray a(10, 1);
-        Darray b(10, 2);
-        Darray c(10, 3);
+        Darray a1;
+        Darray a3 = a1 + static_cast<Darray>(6);
 
-        a += 44;
-
-        cout << "a -> "; a.show_arr();
-        cout << "b -> "; b.show_arr();
-        cout << "c -> "; c.show_arr();
-
+        a1.show_arr();
+        a3.show_arr();
 
     }
     catch (const Darray::MyException & ex) {
@@ -26,7 +22,4 @@ int main()
 
 
 //Надо добавить:
-//Конструктор перемещения
-//Оператор присваивания перемещением
 //Конструктор преобразования через массив int
-//Оператор суммы с семантикой перемещения ??
