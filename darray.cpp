@@ -3,14 +3,24 @@
 using namespace std;
 
 
-Darray::Darray() : lenght(0)
+Darray::Darray()
 {
+    cout <<"create() " << this << endl;
     init_array(lenght, start_lenght_array);
 }
 //-------------------------------------------------------------------------------------
-Darray::Darray(Darray&& other) : data(other.data),
+Darray::Darray(int value, int size_lenght): lenght(size_lenght)
+{
+    cout <<"create(value,...) "<< this << endl;
+    init_array(lenght, size_lenght * resize_factor);
+    for (int i = 0; i < lenght; i++)
+        data[i] = value;
+}
+//-------------------------------------------------------------------------------------
+Darray::Darray(Darray&& other) noexcept : data(other.data),
     lenght(other.lenght), capacity(other.capacity)
 {
+    cout <<"move "<< &other << " -> "<< this<< endl;
     other.data = nullptr;
     other.lenght = 0;
     other.capacity = 0;
@@ -19,30 +29,19 @@ Darray::Darray(Darray&& other) : data(other.data),
 Darray::Darray(const Darray& other): lenght(other.lenght),
     capacity(other.capacity)
 {
+    cout <<"copy "<< &other << " -> "<< this<< endl;
     data = new int [static_cast<unsigned int>(capacity)];
     memcpy(reinterpret_cast<char*>(data), reinterpret_cast<char*>(other.data),
            static_cast<unsigned int>(lenght)*sizeof(int));
 }
 //-------------------------------------------------------------------------------------
-Darray::Darray(int value) : lenght(1)
-{
-    init_array(lenght, start_lenght_array);
-    data[0] = value;
-}
-//-------------------------------------------------------------------------------------
-Darray::Darray(int size_lenght, int value): lenght(size_lenght)
-{
-    init_array(lenght, size_lenght * resize_factor);
-    for (int i = 0; i < lenght; i++)
-        data[i] = value;
-}
-//-------------------------------------------------------------------------------------
 Darray::~Darray()
 {
+    cout <<"delete "<< this << endl;
     delete [] data;
 }
 //-------------------------------------------------------------------------------------
-//    Darray::Darray(const int * dataOther) : lenght(1), capacity(start_lenght_array)
+//    Darray::Darray(const int * dataOther) : lenght(1), capacity( )
 //    {
 //        cout << "constructor 1" << endl;
 //        //data = new int[capacity];
@@ -51,21 +50,26 @@ Darray::~Darray()
 void Darray::init_array(int size_lenght, int size_capacity)
 {
 
-    if(lenght < 0)
-        throw MyException("The attemp to get a negative "
-                          "array size has been suspended",
-                          MyException::out_of_min_size);
+    if(size_lenght < 0 || size_capacity < 0)
+        throw DarrayException("The attemp to get a negative "
+                              "array size has been suspended",
+                              DarrayException::out_of_min_size);
 
-    capacity = size_capacity;
-    if(capacity > max_lenght_array){
-        if(size_lenght > max_lenght_array)
-            throw MyException("The attemp to get an array larger"
-                              " than the allowed size has been suspended",
-                              MyException::out_of_max_size);
-        else
-            capacity = max_lenght_array;
+    if(size_capacity >= start_lenght_array)
+    {
+        capacity = size_capacity;
+
+        if(capacity > max_lenght_array){
+            if(size_lenght > max_lenght_array)
+                throw DarrayException("The attemp to get an array larger"
+                                      " than the allowed size has been suspended",
+                                      DarrayException::out_of_max_size);
+            else
+                capacity = max_lenght_array;
+        }
     }
-
+    else
+        capacity = start_lenght_array;
 
     data = new int [static_cast<uint>(capacity)];
 }
@@ -73,12 +77,15 @@ void Darray::init_array(int size_lenght, int size_capacity)
 void Darray::resize_array(int size_new)
 {
     if(size_new > max_lenght_array)
-        throw MyException("The attemp to get an array larger"
-                          " than the allowed size has been suspended",
-                          MyException::out_of_max_size);
+        throw DarrayException("The attemp to get an array larger"
+                              " than the allowed size has been suspended",
+                              DarrayException::out_of_max_size);
 
     if(size_new <= capacity )
         return;
+
+    if(capacity == 0)
+        capacity = start_lenght_array;
 
     while (capacity < size_new) {
         capacity *= resize_factor;
@@ -89,8 +96,11 @@ void Darray::resize_array(int size_new)
     }
 
     int* tmp_ptr = new int [static_cast<uint>(capacity)];
-    memcpy(reinterpret_cast<char*>(tmp_ptr), reinterpret_cast<char*>(data),
-           static_cast<uint>(lenght)*sizeof(int));
+
+    if(data != nullptr)
+        memcpy(reinterpret_cast<char*>(tmp_ptr), reinterpret_cast<char*>(data),
+               static_cast<uint>(lenght)*sizeof(int));
+
     delete [] data;
     data = tmp_ptr;
 }
@@ -106,7 +116,7 @@ const Darray& Darray::operator=(const Darray& other)
     return *this;
 }
 //-------------------------------------------------------------------------------------
-Darray& Darray::operator=(Darray&& other)
+Darray& Darray::operator=(Darray&& other) noexcept
 {
     data = other.data;
     lenght = other.lenght;
@@ -129,25 +139,25 @@ const Darray& Darray::operator+=(const Darray& other)
     return *this;
 }
 //-------------------------------------------------------------------------------------
-const Darray& Darray::append(const Darray& other)
-{
-    return *this += other;
-}
-//-------------------------------------------------------------------------------------
-Darray Darray::operator+(const Darray& other)
-{
-    Darray tmp_obj(*this);
-    tmp_obj += other;
-    return  tmp_obj; // должно сработать NRVO, значит move не нужен
+Darray operator+(Darray left, const Darray& right)
+{// уже лучше, но может быть лишнее выделение памяти при left.len+right.len > left.capacity
+    cout << "operator+  " << &left <<endl;
+    left += right;
+    return  left;
 }
 //-------------------------------------------------------------------------------------
 int Darray::at(int index) const
 {
     if(index > lenght || index < 0)
-        throw MyException("The attemp to go outside the"
-                          " array has been suspended",
-                          MyException::out_of_range);
+        throw DarrayException("The attemp to go outside the"
+                              " array has been suspended",
+                              DarrayException::out_of_range);
     return data[index];
+}
+//-------------------------------------------------------------------------------------
+const Darray& Darray::append(const Darray& other)
+{
+    return *this += other;
 }
 //-------------------------------------------------------------------------------------
 void Darray::push_back(int value)
@@ -160,9 +170,9 @@ void Darray::push_back(int value)
 int Darray::pop_back()
 {
     if(lenght <= 0)
-        throw MyException("The attemp to go outside the"
-                          " array has been suspended",
-                          MyException::out_of_range);
+        throw DarrayException("The attemp to go outside the"
+                              " array has been suspended",
+                              DarrayException::out_of_range);
     return data[lenght--];
 }
 //-------------------------------------------------------------------------------------
@@ -195,7 +205,7 @@ int Darray::Item::assign_operator(int right, type_assign type){
     return current->data[index];
 }
 //-------------------------------------------------------------------------------------
-Darray::MyException::~MyException(){}
+Darray::DarrayException::~DarrayException(){}
 //-------------------------------------------------------------------------------------
 int Darray::Item::operator=(int right)
 {
@@ -230,9 +240,9 @@ int Darray::Item::operator%=(int right)
 Darray::Item::operator int() const
 {
     if(index >= current->lenght || index < 0)
-        throw MyException("The attemp to go outside the"
-                          " array has been suspended",
-                          MyException::out_of_range);
+        throw DarrayException("The attemp to go outside the"
+                              " array has been suspended",
+                              DarrayException::out_of_range);
     return current->data[index];
 }
 //-------------------------------------------------------------------------------------

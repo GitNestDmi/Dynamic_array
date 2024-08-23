@@ -9,7 +9,7 @@ typedef unsigned int uint;
 
 class Darray{
     enum{
-        start_lenght_array  = 2,
+        start_lenght_array  = 10,
         resize_factor = 2,
         max_lenght_array = 30,
         value_error = 123456789
@@ -47,18 +47,17 @@ class Darray{
 public:
     //    Darray(const int * dataOther) ;
     Darray();
-    explicit Darray(int value);
-    Darray(int size_lenght, int value);
+    explicit Darray(int value,int size_lenght = 1);
     Darray(const Darray& other);
-    Darray(Darray&& other);
+    Darray(Darray&& other) noexcept; //noexcept for stl containers
     ~Darray();
 
     Item operator[](int index){ return Item(this, index); }
 
     const Darray& operator=(const Darray& other);
     const Darray& operator+=(const Darray& other);
-    Darray& operator=(Darray&& other);
-    Darray operator+(const Darray& other);
+    Darray& operator=(Darray&& other)noexcept;
+    friend Darray operator+(Darray left, const Darray& right);
 
     const Darray& append(const Darray& other);
     const int* get_data() const { return data; }
@@ -69,18 +68,20 @@ public:
     void push_back(int value = 0);
     void show_arr(const char* sep = " ") const;
 
-    struct MyException : public std::range_error
+
+    struct DarrayException : public std::range_error
     {
         enum exept_type{ out_of_max_size, out_of_min_size, out_of_range};
 
-        MyException(const char* msg, exept_type type):
+        DarrayException(const char* msg, exept_type type):
             range_error(msg) {this->ex_type = type;}
-        ~MyException();
+        ~DarrayException();
         exept_type GetExcepType()const {return ex_type;}
 
     private:
         exept_type ex_type;
     };
 };
+
 
 #endif // DARRAY_H

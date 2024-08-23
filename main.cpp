@@ -2,18 +2,21 @@
 
 using namespace std;
 
-
 int main()
 {
     try {
-        Darray a1;
-        Darray a3 = a1 + static_cast<Darray>(6);
+        Darray a2(2,2 );
 
-        a1.show_arr();
+        Darray a3(a2 + a2);
+
+        cout << "a1 ->" ;
+        a2.show_arr();
+
+        cout << "a3 ->" ;
         a3.show_arr();
 
     }
-    catch (const Darray::MyException & ex) {
+    catch (const Darray::DarrayException & ex) {
         cout << ex.what() <<" - " << ex.GetExcepType() << endl;
 
     }
