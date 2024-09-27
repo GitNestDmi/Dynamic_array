@@ -118,11 +118,12 @@ const Darray& Darray::operator=(const Darray& other)
 //-------------------------------------------------------------------------------------
 Darray& Darray::operator=(Darray&& other) noexcept
 {
+    int* tmp = data;
     data = other.data;
+    other.data = tmp;
     lenght = other.lenght;
-    capacity = other.capacity;
-    other.data = nullptr;
     other.lenght = 0;
+    capacity = other.capacity;
     other.capacity = 0;
     return *this;
 }
