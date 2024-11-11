@@ -5,7 +5,7 @@ using namespace std;
 
 Darray::Darray()
 {
-    cout <<"create() " << this << endl;
+    cout <<"create () " << this << endl;
     init_array(lenght, start_lenght_array);
 }
 //-------------------------------------------------------------------------------------
